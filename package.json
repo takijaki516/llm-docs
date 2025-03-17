@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "llm-docs",
   "private": true,
   "scripts": {
     "build": "turbo run build",
