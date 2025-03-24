@@ -41,6 +41,7 @@ function RouteComponent() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     if (!res.ok) {
