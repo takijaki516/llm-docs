@@ -5,5 +5,6 @@ declare module 'express' {
 }
 
 export interface UserInfo {
+  id: number;
   email: string;
 }

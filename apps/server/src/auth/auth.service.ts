@@ -7,13 +7,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
-import * as crypto from 'node:crypto';
 import * as jwt from 'jsonwebtoken';
 
 import { DRIZZLE, type DRIZZLE_CLIENT } from 'src/drizzle/drizzle.module';
 import { usersSchema } from 'src/drizzle/schema/users.schema';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
+import { UserInfo } from 'src/types/request';
 
 @Injectable()
 export class AuthService {
@@ -37,8 +37,9 @@ export class AuthService {
 
     // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    // 80 characters
-    const refreshToken = crypto.randomBytes(40).toString('hex');
+
+    // 7 days
+    const refreshToken = this.generateToken(email, 7 * 24 * 60 * 60 * 1000);
 
     const [newUser] = await this.db
       .insert(usersSchema)
@@ -52,7 +53,8 @@ export class AuthService {
         email: usersSchema.email,
       });
 
-    const accessToken = this.generateAccessToken(newUser.email);
+    // 15 minutes
+    const accessToken = this.generateToken(newUser.email, 15 * 60 * 1000);
 
     return {
       user: newUser,
@@ -81,14 +83,20 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const refreshToken = crypto.randomBytes(40).toString('hex');
+    // 7 days
+    const refreshToken = this.generateToken(
+      user.email,
+      7 * 24 * 60 * 60 * 1000,
+    );
 
     await this.db
       .update(usersSchema)
       .set({ refreshToken: refreshToken })
       .where(eq(usersSchema.email, email));
 
-    const accessToken = this.generateAccessToken(user.email);
+    // 15 minutes
+    const accessToken = this.generateToken(user.email, 15 * 60 * 1000);
+
     return {
       user: {
         id: user.id,
@@ -123,8 +131,43 @@ export class AuthService {
     }
   }
 
-  private generateAccessToken(userEmail: string) {
+  async refreshAccessToken(userInfo: UserInfo) {
+    const [user] = await this.db
+      .select()
+      .from(usersSchema)
+      .where(eq(usersSchema.id, userInfo.id))
+      .limit(1);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const accessToken = this.generateToken(user.email, 15 * 60 * 1000);
+    const refreshToken = this.generateToken(
+      user.email,
+      7 * 24 * 60 * 60 * 1000,
+    );
+
+    await this.db
+      .update(usersSchema)
+      .set({ refreshToken: refreshToken })
+      .where(eq(usersSchema.id, user.id));
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private generateToken(userEmail: string, expiresInMilliseconds: number) {
     const secret = this.configService.getOrThrow<string>('JWT_SECRET');
-    return jwt.sign({ sub: userEmail }, secret, { expiresIn: '15m' });
+
+    return jwt.sign({ sub: userEmail }, secret, {
+      expiresIn: expiresInMilliseconds,
+    });
   }
 }
