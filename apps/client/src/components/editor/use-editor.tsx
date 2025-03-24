@@ -6,6 +6,7 @@ import {
   Editor,
 } from "@tiptap/react";
 import { extensions } from "./extentions";
+import { cn } from "@/lib/utils";
 
 export interface UseMyEditorOptions extends UseEditorOptions {
   value?: Content;
@@ -69,6 +70,11 @@ export const useMyEditor = ({
 
   const editor = useEditor({
     extensions,
+    editorProps: {
+      attributes: {
+        class: cn("focus:outline-none"),
+      },
+    },
     onUpdate: () => handleUpdate,
     onCreate: () => handleCreate,
     onBlur: () => handleBlur,

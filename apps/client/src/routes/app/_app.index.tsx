@@ -7,16 +7,14 @@ export const Route = createFileRoute("/app/_app/")({
 });
 
 function RouteComponent() {
-  const [editorContent, setEditorContent] = React.useState("LETS GO");
+  const [editorContent, setEditorContent] = React.useState("");
 
   return (
-    <div className="flex">
-      {editorContent}
-      <MyEditor
-        value={editorContent}
-        onChange={(value) => setEditorContent(value?.toString() ?? "")}
-        output="html"
-      />
-    </div>
+    <MyEditor
+      value={editorContent}
+      onChange={(value) => setEditorContent(value?.toString() ?? "")}
+      output="html"
+      className="relative flex h-full flex-col border border-red-500"
+    />
   );
 }

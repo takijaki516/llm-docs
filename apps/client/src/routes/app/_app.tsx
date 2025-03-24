@@ -54,7 +54,7 @@ function RouteComponent() {
           </Breadcrumb>
         </header>
 
-        <div className="bg-muted flex-1 p-6">
+        <div className="bg-muted flex-1 border border-yellow-400 p-6">
           <Outlet />
         </div>
       </SidebarInset>

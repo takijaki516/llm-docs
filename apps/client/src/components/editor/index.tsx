@@ -1,6 +1,7 @@
 import { type Content, EditorContent } from "@tiptap/react";
 
 import { useMyEditor, UseMyEditorOptions } from "./use-editor";
+import { EditorToolbar } from "./toolbar";
 
 interface MyEditorProps extends Omit<UseMyEditorOptions, "onUpdate"> {
   value?: Content;
@@ -26,7 +27,11 @@ export const MyEditor = ({
 
   return (
     <div className={className}>
-      <EditorContent editor={editor} />
+      <div>
+        <EditorToolbar editor={editor} />
+      </div>
+
+      <EditorContent editor={editor} className="my-editor" />
     </div>
   );
 };

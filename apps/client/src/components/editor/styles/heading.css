@@ -1,0 +1,11 @@
+.my-editor .ProseMirror h1 {
+  @apply text-3xl font-bold;
+}
+
+.my-editor .ProseMirror h2 {
+  @apply text-2xl font-bold;
+}
+
+.my-editor .ProseMirror h3 {
+  @apply text-xl font-bold;
+}

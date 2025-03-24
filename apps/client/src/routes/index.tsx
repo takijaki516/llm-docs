@@ -9,10 +9,5 @@ export const Route = createFileRoute("/")({
 function Index() {
   const userEmail = useAuthStore((state) => state.userEmail);
 
-  return (
-    <div>
-      <h3>welcome home!</h3>
-      {userEmail}
-    </div>
-  );
+  return <div>{userEmail}</div>;
 }
